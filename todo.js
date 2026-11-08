@@ -12,26 +12,30 @@ var css='.ay{background:#e3f6e6;border:1.5px solid #2e9e4f;border-left:6px solid
 +'.h{font-size:12px;color:var(--text-muted);margin:8px 0 0 30px;line-height:1.45}.bt{display:flex;gap:8px;margin-top:12px}.bt button{flex:1;min-height:44px}';
 var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
 var $=function(i){return document.getElementById(i)};
-$("app").innerHTML='<div class="ay"><b>👉 Aktion erforderlich</b>Tasks prüfen und bestätigen</div><div id="hd" class="g"></div><div id="L"></div><div id="K"></div><div class="fl" style="margin-top:12px"><span>📝</span><input class="fx" id="gc" placeholder="Kommentar für alle"></div><p class="g" id="S"></p><div class="bt"><button onclick="go(1)">✅ Anlegen ↗</button><button onclick="go(0)">✏️ Verbessern ↗</button></div>';
+var MD=window.MODE||"todo",PR=window.PRJ||null,VB=window.VERB||"Anlegen",HD=window.HEAD||"Tasks prüfen und bestätigen",NA=MD=="todo"?" Tasks":" Einträge";
+$("app").innerHTML='<div class="ay"><b>👉 Aktion erforderlich</b>'+HD+'</div><div id="hd" class="g"></div><div id="L"></div><div id="K"></div><div class="fl" style="margin-top:12px"><span>📝</span><input class="fx" id="gc" placeholder="Kommentar für alle"></div><p class="g" id="S"></p><div class="bt"><button onclick="go(1)">✅ '+VB+' ↗</button><button onclick="go(0)">✏️ Verbessern ↗</button></div>';
 var Q=[["P1","🔴 P1"],["P2","🟠 P2"],["P3","🔵 P3"],["P4","⚪️ P4"]],U=["2m","5m","10m","15m","20m","30m","45m","1h","2h"],W=["So","Mo","Di","Mi","Do","Fr","Sa"];
 var SK=window.SKIP||[],DL=window.DEL||0;
 function lab(v){if(!v||v=="ohne")return "ohne Datum";var d=new Date(v+"T12:00");return W[d.getDay()]+" "+d.getDate()+"."+(d.getMonth()+1)+"."}
 function sb(t){return t[0].indexOf("↳")==0}
-T.forEach(function(t){if(U.indexOf(t[4])<0)U.push(t[4])});
+T.forEach(function(t){if(t[4]&&U.indexOf(t[4])<0)U.push(t[4])});
+function ea(x){return String(x).replace(/&/g,"&amp;").replace(/"/g,"&quot;")}
 function sel(e,id,a,v){return '<div class="fl"><span>'+e+'</span><select class="fx" id="'+id+'" onchange="calc()">'+a.map(function(o){o=typeof o=="string"?[o,o]:o;return '<option value="'+o[0]+'"'+(o[0]==v?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'}
 var on=T.map(function(){return 1});
-$("L").innerHTML=T.map(function(t,i){var v=t[3]=="ohne"?"":t[3],b=sb(t);return '<div class="r'+(b?' sub':'')+'" id="r'+i+'"><div class="top"><input type="checkbox" checked onchange="tg('+i+',this.checked)"><div><p class="t">'+t[0]+'</p><p class="d">'+t[1]+'</p></div></div><div class="f">'+sel("🚦","q"+i,Q,t[2])+(b?"":'<div class="fl"><span>📅</span><input class="fx" type="date" id="d'+i+'" value="'+v+'" onchange="calc();sg('+i+')"></div><div class="sg" id="sg'+i+'"></div>')+sel("⏱️","u"+i,U,t[4])+'<div class="fl"><span>💬</span><input class="fx" type="text" id="c'+i+'" placeholder="Kommentar oder Änderung"></div></div>'+(t[5]?'<p class="h">💡 '+t[5]+'</p>':'')+'</div>'}).join("");
+$("L").innerHTML=T.map(function(t,i){var v=t[3]=="ohne"?"":t[3],b=sb(t),fs;if(MD=="cal")fs='<div class="fl"><span>✏️</span><input class="fx" type="text" id="n'+i+'" value="'+ea(t[2])+'"></div>';else if(MD=="meal")fs=sel("🍽️","n"+i,t[2],t[2][0]);else fs=(PR&&!b?sel("📁","j"+i,PR,t[7]||PR[0]):"")+(MD=="dur"?"":sel("🚦","q"+i,Q,t[2])+(b?"":'<div class="fl"><span>📅</span><input class="fx" type="date" id="d'+i+'" value="'+v+'" onchange="calc();sg('+i+')"></div><div class="sg" id="sg'+i+'"></div>'))+sel("⏱️","u"+i,U,t[4]);return '<div class="r'+(b?' sub':'')+'" id="r'+i+'"><div class="top"><input type="checkbox" checked onchange="tg('+i+',this.checked)"><div><p class="t">'+t[0]+'</p><p class="d">'+t[1]+'</p></div></div><div class="f">'+fs+'<div class="fl"><span>💬</span><input class="fx" type="text" id="c'+i+'" placeholder="Kommentar oder Änderung"></div></div>'+(t[5]?'<p class="h">💡 '+t[5]+'</p>':'')+'</div>'}).join("");
 if(SK.length)$("K").innerHTML='<p class="g">🗑️ Nicht angelegt, Reminder wird gelöscht ('+SK.length+'): '+SK.join(" · ")+'</p>';
 window.sg=function(i){var e=$("sg"+i);if(!e)return;var v=T[i][3]=="ohne"?"":T[i][3];e.innerHTML='📌 Vorschlag: '+lab(T[i][3])+($("d"+i).value!==v?' <button onclick="ap('+i+')">übernehmen</button>':" ✓")};
 window.ap=function(i){$("d"+i).value=T[i][3]=="ohne"?"":T[i][3];calc();sg(i)};
-T.forEach(function(t,i){if(!sb(t))sg(i)});
+T.forEach(function(t,i){if(MD=="todo"&&!sb(t))sg(i)});
 window.tg=function(i,v){on[i]=v?1:0;$("r"+i).classList.toggle("off",!v);calc()};
 window.all=function(v){T.forEach(function(t,i){tg(i,v);$("r"+i).querySelector("input").checked=v})};
 window.calc=function(){var n=0,by={},w=[];T.forEach(function(t,i){if(!on[i])return;n++;var d=$("d"+i);if(!d||!d.value)return;var q=$("q"+i).value;by[d.value]=by[d.value]||{};by[d.value][q]=(by[d.value][q]||0)+1});
 for(var d in by){var c=by[d],l=lab(d);if(c.P1>1)w.push(l+": "+c.P1+"× P1");if(c.P2>2)w.push(l+": "+c.P2+"× P2");if(c.P3>3)w.push(l+": "+c.P3+"× P3")}
-$("hd").innerHTML=n+' Tasks · <a href="#" onclick="all(1);return false">alle</a> / <a href="#" onclick="all(0);return false">keine</a>';
-$("S").textContent="📊 "+n+" Tasks"+(DL?", "+DL+" Reminders gelöscht":"")+(w.length?" · ⚠️ Kontingent: "+w.join(", "):"")};
+$("hd").innerHTML=n+NA+' · <a href="#" onclick="all(1);return false">alle</a> / <a href="#" onclick="all(0);return false">keine</a>';
+$("S").textContent="📊 "+n+NA+(DL?", "+DL+" Reminders gelöscht":"")+(w.length?" · ⚠️ Kontingent: "+w.join(", "):"")};
 calc();
-window.go=function(m){var l=T.map(function(t,i){if(!on[i])return (i+1)+": "+t[0]+" | nicht anlegen";var c=$("c"+i).value.trim(),d=sb(t)?"ohne":($("d"+i).value||"ohne");return (i+1)+": "+t[0]+" | "+$("q"+i).value+" | "+d+" | "+$("u"+i).value+(c?" | Kommentar: "+c:"")}),g=$("gc").value.trim();
-sendPrompt((m?"Anlegen":"Verbessern")+" mit folgenden Einstellungen:\n"+l.join("\n")+(g?"\nKommentar für alle: "+g:""))};
+window.go=function(m){var l=T.map(function(t,i){var n=i+1+": ",id=t[6]?t[6]+" | ":"",c=$("c"+i).value.trim(),k=c?" | Kommentar: "+c:"";if(!on[i])return n+id+t[0]+" | nicht übernehmen";
+if(MD=="cal")return n+id+t[0]+" → "+$("n"+i).value.trim()+k;if(MD=="meal")return n+id+t[0]+" → "+$("n"+i).value+k;
+var j=$("j"+i);return n+id+t[0]+(MD=="dur"?"":" | "+$("q"+i).value+" | "+(sb(t)?"ohne":$("d"+i).value||"ohne"))+" | "+$("u"+i).value+(j?" | Projekt: "+j.value:"")+k}),g=$("gc").value.trim();
+sendPrompt((m?VB:"Verbessern")+" mit folgenden Einstellungen:\n"+l.join("\n")+(g?"\nKommentar für alle: "+g:""))};
 })();
