@@ -30,17 +30,20 @@ $("L").innerHTML=T.map(function(t,i){var v=t[3]=="ohne"?"":t[3],b=sb(t),fs;if(MD
 if(SK.length)$("K").innerHTML='<p class="g">🗑️ Nicht angelegt, Reminder wird gelöscht ('+SK.length+'): '+SK.join(" · ")+'</p>';
 window.rl=function(i){var e=$("dr"+i),v=$("d"+i).value;if(!e)return;if(!v){e.textContent="";return}var n=new Date(),z=new Date(n.getFullYear(),n.getMonth(),n.getDate()),d=Math.round((new Date(v+"T12:00")-z)/864e5-.5);e.textContent="("+(d==0?"heute":d==1?"morgen":d==2?"übermorgen":d==-1?"gestern":W[new Date(v+"T12:00").getDay()])+")"};
 T.forEach(function(t,i){if(MD=="todo"&&!sb(t))rl(i)});
-window.tg=function(i,v){on[i]=v?1:0;$("r"+i).classList.toggle("off",!v);calc()};
+window.tg=function(i,v){on[i]=v?1:0;$("r"+i).classList.toggle("off",!v);if(sb(T[i]))sy();calc()};
 window.all=function(v){T.forEach(function(t,i){tg(i,v);$("r"+i).querySelector("input").checked=v})};
 function mn(v){var m=/^(?:(\d+)h)?(?:(\d+)m)?$/.exec(v||"");return m?(+m[1]||0)*60+(+m[2]||0):0}
 function fm(m){return m>=60?Math.floor(m/60)+"h"+(m%60?" "+m%60+"m":""):m+"m"}
 var BG={P1:60,P2:90,P3:120,P4:90};
+function fd(m){return m>=60?Math.floor(m/60)+"h"+(m%60?m%60+"m":""):m+"m"}
+window.sy=function(){if(MD!="todo")return;var p=-1,s={};T.forEach(function(t,i){if(!sb(t)){p=i}else if(p>=0){s[p]=(s[p]||0)+(on[i]?mn($("u"+i).value):0)}});for(var k in s){var e=$("u"+k);if(!e)continue;var v=fd(s[k]);if(![].some.call(e.options,function(o){return o.value==v})){var o=document.createElement("option");o.value=v;o.textContent=v;e.appendChild(o)}e.value=v}};
+T.forEach(function(t,i){var e=sb(t)&&$("u"+i);if(e)e.addEventListener("change",function(){sy();calc()})});
 window.calc=function(){var n=0,by={},w=[];T.forEach(function(t,i){if(!on[i])return;n++;var d=$("d"+i);if(!d||!d.value)return;var q=$("q"+i).value;by[d.value]=by[d.value]||{};by[d.value][q]=(by[d.value][q]||0)+mn($("u"+i).value)});
 for(var d in by)for(var q in BG)if(by[d][q]>BG[q])w.push('<br>'+lab(d)+' · '+q+': '+fm(by[d][q])+' von '+fm(BG[q]));
 $("hd").innerHTML=n+NA+' · <a href="#" onclick="all(1);return false">alle</a> / <a href="#" onclick="all(0);return false">keine</a>';
 $("W").innerHTML=w.length?'<div class="wn"><b>⚠️ Tagesbudget überschritten</b>Zeit pro Priorität, nur diese Tasks:'+w.join("")+'</div>':"";
 $("S").textContent=DL?"🗑️ "+DL+" Reminders werden gelöscht":""};
-calc();
+sy();calc();
 window.go=function(m){var l=T.map(function(t,i){var n=i+1+": ",id=t[6]?t[6]+" | ":"",c=$("c"+i).value.trim(),k=c?" | Kommentar: "+c:"";if(!on[i])return n+id+t[0]+" | nicht übernehmen";
 if(MD=="cal")return n+id+t[0]+" → "+$("n"+i).value.trim()+k;if(MD=="meal")return n+id+t[0]+" → "+$("n"+i).value+k;
 var j=$("j"+i);return n+id+t[0]+(MD=="dur"?"":" | "+$("q"+i).value+" | "+(sb(t)?"ohne":$("d"+i).value||"ohne"))+" | "+$("u"+i).value+(j?" | Projekt: "+j.value:"")+k}),g=$("gc").value.trim();
