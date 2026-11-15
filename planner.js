@@ -4,7 +4,7 @@ window.addEventListener("error",function(e){var a=document.getElementById("app")
 
 var WIN=780,BUF=0.5,NEXT=DAYS.length,PS=4,MAXLV=6,BYID={},HOME={},saved={},SV={},wasOv={},LV=[],LVC=0,lvOp={},lvSel={},lvRej={};
 var TC={cal:'#5b8ef5',over:'#e05555',todo:'#5fbd5f'};
-var du={},chk={},acc={},rj={},man={},pp0={};
+var du={},chk={},acc={},rj={},man={},pp0={};DAYS.forEach(function(d){if(!d.blk)d.blk=d.b?[['','',d.b]]:[];if(!d.dep)d.dep=[];});while(T.length<DAYS.length)T.push([]);
 T.forEach(function(l,j){(l||[]).forEach(function(t){BYID[t[0]]=t;HOME[t[0]]=j;if(t[8])du[t[0]]=t[3];if(t[9])du[t[0]]=t[9];});});
 var IC_CAP='<svg class="ic" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.6 1.9"/></svg>';
 var IC_LOAD='<svg class="ic" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="3" y="1" width="8" height="3.4" rx="1" fill="#e05555"/><rect x="3" y="5.3" width="8" height="3.4" fill="#e0903a"/><rect x="3" y="9.6" width="8" height="3.4" rx="1" fill="#5b8ef5"/></svg>';
