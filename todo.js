@@ -10,6 +10,9 @@ var css='.ay{background:#e3f6e6;border:1.5px solid #2e9e4f;border-left:6px solid
 +'input.fx[type=text]{display:block}input.fx::-webkit-date-and-time-value{text-align:left;margin:0;min-height:0;line-height:normal}input.fx::-webkit-datetime-edit{padding:0;display:flex;align-items:center}'
 +'.fl .dr{flex:none;width:auto;min-width:84px;text-align:left;font-size:14px;color:var(--text-secondary);white-space:nowrap}'
 +'.h{font-size:12px;color:var(--text-muted);margin:8px 0 0 30px;line-height:1.45}.bt{display:flex;gap:8px;margin-top:12px}.bt button{flex:1;min-height:44px}'
++'.bg{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);margin:0 0 6px}.t.del{text-decoration:line-through;opacity:.6}'
++'.vn{margin:10px 0 0 30px;border:.5px solid var(--border);border-radius:12px;overflow:hidden}.vn div{display:flex;gap:10px;padding:10px 12px;font-size:15px;line-height:1.35;align-items:baseline}.vn div+div{border-top:.5px solid var(--border)}.vn i{font-style:normal;flex:none;width:66px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary)}.vn b{font-weight:600}.vn .fr b{font-weight:400;text-decoration:line-through;opacity:.6}.vn .to b{color:#2e9e4f}.vn span{color:var(--text-secondary)}'
++'.uk{margin:10px 0 0 30px;padding:10px 12px;border-radius:12px;border:.5px solid #ba7517;border-left:4px solid #ba7517;background:#faeeda;color:#633806;font-size:14px;line-height:1.45}.uk b{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}@media(prefers-color-scheme:dark){.uk{background:#33260f;border-color:#ef9f27;color:#fac775}.vn .to b{color:#4cc76f}}'
 +'.wn{margin:12px 0 0;padding:10px 14px;border-radius:12px;border:.5px solid #ba7517;border-left:4px solid #ba7517;background:#faeeda;color:#633806;font-size:13px;line-height:1.5}.wn b{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}@media(prefers-color-scheme:dark){.wn{background:#33260f;border-color:#ef9f27;color:#fac775}}';
 var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
 var $=function(i){return document.getElementById(i)};
@@ -26,7 +29,15 @@ var IB="📥 Inbox";
 function pa(t){var r=[],a=[t[7]||IB].concat(t[8]||[],[IB],PR||[]);a.forEach(function(x){if(r.indexOf(x)<0)r.push(x)});return r}
 function pf(t,i){return sel("📁","j"+i,pa(t),t[7]||IB)}
 var on=T.map(function(){return 1});
-$("L").innerHTML=T.map(function(t,i){var v=t[3]=="ohne"?"":t[3],b=sb(t),fs;if(MD=="cal")fs='<div class="fl"><span>✏️</span><input class="fx" type="text" id="n'+i+'" value="'+ea(t[2])+'"></div>';else if(MD=="meal")fs=sel("🍽️","n"+i,t[2],t[2][0]);else fs=(PR&&!b?pf(t,i):"")+(MD=="dur"?"":sel("🚦","q"+i,Q,t[2])+(b?"":'<div class="fl"><span>📅</span><input class="fx" type="date" id="d'+i+'" value="'+v+'" onchange="calc();rl('+i+')"><span class="dr" id="dr'+i+'"></span></div>'))+sel("⏱️","u"+i,U,t[4]);return '<div class="r'+(b?' sub':'')+'" id="r'+i+'"><div class="top"><input type="checkbox" checked onchange="tg('+i+',this.checked)"><div><p class="t">'+t[0]+'</p><p class="d">'+t[1]+'</p></div></div><div class="f">'+fs+'<div class="fl"><span>💬</span><input class="fx" type="text" id="c'+i+'" placeholder="Kommentar oder Änderung"></div></div>'+(t[5]?'<p class="h">💡 '+t[5]+'</p>':'')+'</div>'}).join("");
+var AC={"NEU":["🆕","Neu","#2e9e4f"],"VERSCHOBEN":["🔀","Verschoben","#378add"],"ÄNDERN":["✏️","Geändert","#ba7517"],"LÖSCHEN":["🗑️","Löschen","#e05555"]};
+function uk(h){return /^unklar/i.test(h||"")}
+function hn(h){if(!h)return"";return uk(h)?'<div class="uk"><b>❓ Unklar</b>'+h.replace(/^unklar:?\s*/i,"")+'</div>':'<p class="h">💡 '+h+'</p>'}
+$("L").innerHTML=T.map(function(t,i){var v=t[3]=="ohne"?"":t[3],b=sb(t),fs,x=MD=="cal"&&t[7],a=x&&AC[x.a],hd='<p class="t">'+t[0]+'</p><p class="d">'+t[1]+'</p>',ex="";
+if(MD=="cal"){fs=x&&(x.a=="VERSCHOBEN"||x.a=="LÖSCHEN")?'<input type="hidden" id="n'+i+'" value="'+ea(t[2])+'">':'<div class="fl"><span>✏️</span><input class="fx" type="text" id="n'+i+'" value="'+ea(t[2])+'"></div>';
+if(x){hd=(a?'<span class="bg" style="--c:'+a[2]+'">'+a[0]+' '+a[1]+'</span>':'')+'<p class="t'+(x.a=="LÖSCHEN"?' del':'')+'">'+(t[0]=="Neu"?t[2]:t[0])+'</p>';
+ex='<div class="vn">'+(x.von?'<div'+(x.nach?' class="fr"':'')+'><i>'+(x.nach?'Von':'Wann')+'</i><b>'+x.von+'</b></div>':'')+(x.nach?'<div class="to"><i>Nach</i><b>'+x.nach+'</b></div>':'')+(x.kal?'<div><i>Kalender</i><span>'+x.kal+'</span></div>':'')+(x.ort?'<div><i>Ort</i><span>'+x.ort+'</span></div>':'')+'</div>'}}
+else if(MD=="meal")fs=sel("🍽️","n"+i,t[2],t[2][0]);else fs=(PR&&!b?pf(t,i):"")+(MD=="dur"?"":sel("🚦","q"+i,Q,t[2])+(b?"":'<div class="fl"><span>📅</span><input class="fx" type="date" id="d'+i+'" value="'+v+'" onchange="calc();rl('+i+')"><span class="dr" id="dr'+i+'"></span></div>'))+sel("⏱️","u"+i,U,t[4]);
+return '<div class="r'+(b?' sub':'')+'" id="r'+i+'"><div class="top"><input type="checkbox" checked onchange="tg('+i+',this.checked)"><div>'+hd+'</div></div>'+ex+(uk(t[5])?hn(t[5]):'')+'<div class="f">'+fs+'<div class="fl"><span>💬</span><input class="fx" type="text" id="c'+i+'" placeholder="Kommentar oder Änderung"></div></div>'+(uk(t[5])?'':hn(t[5]))+'</div>'}).join("");
 if(SK.length)$("K").innerHTML='<p class="g">🗑️ Nicht angelegt, Reminder wird gelöscht ('+SK.length+'): '+SK.join(" · ")+'</p>';
 window.rl=function(i){var e=$("dr"+i),v=$("d"+i).value;if(!e)return;if(!v){e.textContent="";return}var n=new Date(),z=new Date(n.getFullYear(),n.getMonth(),n.getDate()),d=Math.round((new Date(v+"T12:00")-z)/864e5-.5);e.textContent="("+(d==0?"heute":d==1?"morgen":d==2?"übermorgen":d==-1?"gestern":W[new Date(v+"T12:00").getDay()])+")"};
 T.forEach(function(t,i){if(MD=="todo"&&!sb(t))rl(i)});
@@ -45,7 +56,7 @@ $("W").innerHTML=w.length?'<div class="wn"><b>⚠️ Tagesbudget überschritten<
 $("S").textContent=DL?"🗑️ "+DL+" Reminders werden gelöscht":""};
 sy();calc();
 window.go=function(m){var l=T.map(function(t,i){var n=i+1+": ",id=t[6]?t[6]+" | ":"",c=$("c"+i).value.trim(),k=c?" | Kommentar: "+c:"";if(!on[i])return n+id+t[0]+" | nicht übernehmen";
-if(MD=="cal")return n+id+t[0]+" → "+$("n"+i).value.trim()+k;if(MD=="meal")return n+id+t[0]+" → "+$("n"+i).value+k;
+if(MD=="cal"){var x=t[7];return n+id+t[0]+" → "+$("n"+i).value.trim()+(x?" | "+x.a+(x.von?": "+x.von:"")+(x.nach?" → "+x.nach:""):"")+k}if(MD=="meal")return n+id+t[0]+" → "+$("n"+i).value+k;
 var j=$("j"+i);return n+id+t[0]+(MD=="dur"?"":" | "+$("q"+i).value+" | "+(sb(t)?"ohne":$("d"+i).value||"ohne"))+" | "+$("u"+i).value+(j?" | Projekt: "+j.value:"")+k}),g=$("gc").value.trim();
 sendPrompt((m?VB:"Verbessern")+" mit folgenden Einstellungen:\n"+l.join("\n")+(g?"\nKommentar für alle: "+g:""))};
 })();
