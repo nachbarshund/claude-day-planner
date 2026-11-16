@@ -21,7 +21,7 @@ function capOf(i){return capO[i]!==undefined?capO[i]:capRaw(i);}
 function tgCap(){capEd=!capEd;render();}
 function setCap(i,v){v=parseInt(v,10);if(isNaN(v)||v<0||v===capRaw(i))delete capO[i];else capO[i]=v;render();}
 function rstCap(i){delete capO[i];render();}
-function tasksOf(i){var a=[];T.forEach(function(l,j){(l||[]).forEach(function(t){var id=t[0],to=mv[id];if((to===undefined&&j===i)||to===i)a.push({id:id,t:t[1],p:t[2],m:du[id]||t[3],m0:t[3],ds:t[4],fb:t[5],dl:(t[6]===undefined||t[6]===''?99:t[6]),dll:t[7]||'',es:t[8]||0,sg:t[9]||0,lb:t[10]||[],from:j});});});a.sort(function(x,y){return x.p<y.p?-1:x.p>y.p?1:0;});return a;}
+function tasksOf(i){var a=[];T.forEach(function(l,j){(l||[]).forEach(function(t){var id=t[0],to=mv[id];if((to===undefined&&j===i)||to===i)a.push({id:id,t:t[1],p:t[2],m:du[id]||t[3],m0:t[3],ds:t[4],fb:t[5],dl:(t[6]===undefined||t[6]===''?99:t[6]),dll:t[7]||'',es:t[8]||0,sg:t[9]||0,lb:t[10]||[],from:j});});});a.sort(function(x,y){var fx=isFx(x.lb),fy=isFx(y.lb);if(fx!==fy)return fx?-1:1;return x.p<y.p?-1:x.p>y.p?1:0;});return a;}function isFx(lb){return !!(lb&&lb.some(function(l){return /⚓|(^|\s)fix/i.test(l);}));}
 function loadOf(i){var s=DAYS[i].s||[0,0,0,0],p={p1:s[0],p2:s[1],p3:s[2],p4:s[3]};tasksOf(i).forEach(function(t){p[t.p]+=t.m;});p.all=p.p1+p.p2+p.p3+p.p4;return p;}
 function pct(i){var c=capOf(i);return c?Math.round(loadOf(i).all/c*100):999;}
 function cls(p){return p>100?'ov':p>85?'wa':'ok';}
@@ -37,7 +37,7 @@ function lvS(k,f,v){lvSel[k]=lvSel[k]||{};lvSel[k][f]=parseInt(v,10);render();}
 function setBk(k,v){bk[k]=v;render();}function setDep(k,v){dep[k]=v;render();}
 function setMv(id,v){mv[id]=parseInt(v,10);render();}
 function setDu(id,v){v=parseInt(v,10);chk[id]=1;man[id]=1;delete acc[id];delete rj[id];var d=mv[id]!==undefined?mv[id]:HOME[id];if(d<NEXT&&!fitMap(d)[id])wasOv[id]=1;if(v===BYID[id][3]&&!BYID[id][8])delete du[id];else du[id]=v;op[id]=0;render();}
-function fitMap(i){var c=capOf(i),acc=0,f={};tasksOf(i).forEach(function(t){if(acc+t.m<=c){acc+=t.m;f[t.id]=1;}});return f;}
+function fitMap(i){var c=capOf(i),acc=0,f={};tasksOf(i).forEach(function(t){if(isFx(t.lb)||acc+t.m<=c){acc+=t.m;f[t.id]=1;}});return f;}
 function over(i){var f=fitMap(i);return tasksOf(i).filter(function(t){return !f[t.id];});}
 function nowFit(i){var f=fitMap(i);return tasksOf(i).filter(function(t){return f[t.id]&&wasOv[t.id];});}
 function room(){return DAYS.map(function(d,i){return capOf(i)-loadOf(i).all;});}
